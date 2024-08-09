@@ -1,0 +1,21 @@
+[project]
+name = "pyqt-widget-library"
+version = "1.0"
+description = "A library of PyQt widgets that are ready to use in your own project"
+readme = "README.md"
+authors = [{ name = "Joe Wilder" }]
+license = { text = "MIT" }
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["pyqt_widget_library"]
+include-package-data = true
