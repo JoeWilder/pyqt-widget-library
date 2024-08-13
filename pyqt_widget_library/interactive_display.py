@@ -2,14 +2,14 @@ from PyQt6.QtWidgets import QLabel, QFileDialog, QPushButton, QGridLayout, QMess
 from PyQt6.QtGui import QPixmap, QColor, QBrush, QCursor
 from PyQt6.QtCore import Qt, QPoint, pyqtSignal, QStandardPaths, QRectF
 from .base_display import BaseDisplay
-from .events.mouse_click_event import MouseClickEvent
+from .mouse_click_event import MouseClickEvent
 
 SCALE_FACTOR = 1.1
 DRAG_SENSITIVITY = 1.25
 
 
 class InteractiveDisplay(BaseDisplay):
-    coordinates_changed_event = pyqtSignal(QPoint)
+    # coordinates_changed_event = pyqtSignal(QPoint)
     click_event = pyqtSignal(MouseClickEvent)
 
     def __init__(self):
@@ -17,16 +17,16 @@ class InteractiveDisplay(BaseDisplay):
 
     def init_gui(self):
         self.viewer = self.ImageGraphicsView(self, self.click_event)
-        self.viewer.coordinates_changed.connect(self.handle_coords)
-        self.labelCoords = QLabel(self)
-        self.labelCoords.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignCenter)
-        self.buttonOpen = QPushButton(self)
-        self.buttonOpen.setText("Open Image")
-        self.buttonOpen.clicked.connect(self.handle_open)
+        # self.viewer.coordinates_changed.connect(self.handle_coords)
+        # self.labelCoords = QLabel(self)
+        # self.labelCoords.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignCenter)
+        # self.buttonOpen = QPushButton(self)
+        # self.buttonOpen.setText("Open Image")
+        # self.buttonOpen.clicked.connect(self.handle_open)
         layout = QGridLayout(self)
         layout.addWidget(self.viewer, 0, 0, 1, 3)
-        layout.addWidget(self.buttonOpen, 1, 0, 1, 1)
-        layout.addWidget(self.labelCoords, 1, 2, 1, 1)
+        # layout.addWidget(self.buttonOpen, 1, 0, 1, 1)
+        # layout.addWidget(self.labelCoords, 1, 2, 1, 1)
         layout.setColumnStretch(2, 2)
         self._path = None
 
@@ -40,7 +40,7 @@ class InteractiveDisplay(BaseDisplay):
         if (start := self._path) is None:
             start = QStandardPaths.standardLocations(QStandardPaths.StandardLocation.PicturesLocation)[0]
         if path := QFileDialog.getOpenFileName(self, "Open Image", start)[0]:
-            self.labelCoords.clear()
+            # self.labelCoords.clear()
             if not (pixmap := QPixmap(path)).isNull():
                 self.viewer.set_photo(pixmap)
                 self._path = path
