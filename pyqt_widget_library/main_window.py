@@ -33,6 +33,7 @@ class MainWindow(QMainWindow):
             self.interactive_display = InteractiveDisplay()
             layout = QVBoxLayout(self.central_widget)
             layout.addWidget(self.interactive_display)
+            self.interactive_display.handle_open()
             self.interactive_display.click_event.connect(lambda event: print(event))
 
     def display(self):
