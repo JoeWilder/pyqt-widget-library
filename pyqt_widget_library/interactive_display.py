@@ -18,30 +18,18 @@ class InteractiveDisplay(BaseDisplay):
     def init_gui(self):
         self.viewer = self.ImageGraphicsView(self, self.click_event)
         self.viewer.coordinates_changed.connect(self.handle_coords)
-        # self.labelCoords = QLabel(self)
-        # self.labelCoords.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignCenter)
-        # self.buttonOpen = QPushButton(self)
-        # self.buttonOpen.setText("Open Image")
-        # self.buttonOpen.clicked.connect(self.handle_open)
         layout = QGridLayout(self)
         layout.addWidget(self.viewer, 0, 0, 1, 3)
-        # layout.addWidget(self.buttonOpen, 1, 0, 1, 1)
-        # layout.addWidget(self.labelCoords, 1, 2, 1, 1)
         layout.setColumnStretch(2, 2)
         self._path = None
 
     def handle_coords(self, point):
         self.coordinates_changed_event.emit(point)
-        # if not point.isNull():
-        #    self.labelCoords.setText(f"{point.x()}, {point.y()}")
-        # else:
-        #    self.labelCoords.clear()
 
     def handle_open(self):
         if (start := self._path) is None:
             start = QStandardPaths.standardLocations(QStandardPaths.StandardLocation.PicturesLocation)[0]
         if path := QFileDialog.getOpenFileName(self, "Open Image", start)[0]:
-            # self.labelCoords.clear()
             if not (pixmap := QPixmap(path)).isNull():
                 self.viewer.set_photo(pixmap)
                 self._path = path
