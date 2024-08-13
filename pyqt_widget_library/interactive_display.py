@@ -9,7 +9,7 @@ DRAG_SENSITIVITY = 1.25
 
 
 class InteractiveDisplay(BaseDisplay):
-    # coordinates_changed_event = pyqtSignal(QPoint)
+    coordinates_changed_event = pyqtSignal(QPoint)
     click_event = pyqtSignal(MouseClickEvent)
 
     def __init__(self):
@@ -17,7 +17,7 @@ class InteractiveDisplay(BaseDisplay):
 
     def init_gui(self):
         self.viewer = self.ImageGraphicsView(self, self.click_event)
-        # self.viewer.coordinates_changed.connect(self.handle_coords)
+        self.viewer.coordinates_changed.connect(self.handle_coords)
         # self.labelCoords = QLabel(self)
         # self.labelCoords.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignCenter)
         # self.buttonOpen = QPushButton(self)
@@ -31,10 +31,11 @@ class InteractiveDisplay(BaseDisplay):
         self._path = None
 
     def handle_coords(self, point):
-        if not point.isNull():
-            self.labelCoords.setText(f"{point.x()}, {point.y()}")
-        else:
-            self.labelCoords.clear()
+        self.coordinates_changed_event.emit(point)
+        # if not point.isNull():
+        #    self.labelCoords.setText(f"{point.x()}, {point.y()}")
+        # else:
+        #    self.labelCoords.clear()
 
     def handle_open(self):
         if (start := self._path) is None:
