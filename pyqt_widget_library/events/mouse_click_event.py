@@ -3,9 +3,9 @@ from enum import Enum
 
 class MouseClickEvent:
     class MouseButton(Enum):
-        LEFT_CLICK = ...
-        MIDDLE_CLICK = ...
-        RIGHT_CLICK = ...
+        LEFT_CLICK = "left_click"
+        MIDDLE_CLICK = "middle_click"
+        RIGHT_CLICK = "right_click"
 
     def __init__(self, button_type: MouseButton, coordinates: tuple[float, float]):
         self._button_type: self.MouseButton = button_type

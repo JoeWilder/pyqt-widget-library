@@ -1,8 +1,12 @@
-from PyQt6.QtWidgets import QLabel, QFileDialog, QPushButton, QGridLayout, QMessageBox, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QFrame
-from PyQt6.QtGui import QPixmap, QColor, QBrush, QCursor
-from PyQt6.QtCore import Qt, QPoint, pyqtSignal, QStandardPaths, QRectF
+from PyQt6.QtWidgets import QFileDialog, QGridLayout, QMessageBox, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QFrame
+from PyQt6.QtGui import QPixmap, QColor, QBrush, QCursor, QImage, QPainter, QPolygonF, QPen
+from PyQt6.QtCore import Qt, QPoint, pyqtSignal, QStandardPaths, QRectF, QPointF
 from .base_display import BaseDisplay
-from .mouse_click_event import MouseClickEvent
+from .events.mouse_click_event import MouseClickEvent
+import numpy as np
+import qimage2ndarray
+import cv2
+from .utils.polygon_item_node import PolygonItemNode
 
 SCALE_FACTOR = 1.1
 DRAG_SENSITIVITY = 1.25
@@ -156,8 +160,16 @@ class InteractiveDisplay(BaseDisplay):
                 position = self.mapToScene(unscaled_x, unscaled_y)
                 coordinates = (position.x(), position.y())
 
-                click_event = MouseClickEvent(event.button(), coordinates)
-                self._click_event.emit(click_event)
+                click_event = None
+                if event.button() == Qt.MouseButton.LeftButton:
+                    click_event = MouseClickEvent(MouseClickEvent.MouseButton.LEFT_CLICK, coordinates)
+                elif event.button() == Qt.MouseButton.MiddleButton:
+                    click_event = MouseClickEvent(MouseClickEvent.MouseButton.MIDDLE_CLICK, coordinates)
+                elif event.button() == Qt.MouseButton.RightButton:
+                    click_event = MouseClickEvent(MouseClickEvent.MouseButton.RIGHT_CLICK, coordinates)
+
+                if click_event is not None:
+                    self._click_event.emit(click_event)
 
             super().mousePressEvent(event)
 
@@ -171,3 +183,33 @@ class InteractiveDisplay(BaseDisplay):
         def leaveEvent(self, event):
             self.coordinates_changed.emit(QPoint())
             super().leaveEvent(event)
+
+        def capture_viewport(self):
+            area = self.viewport().rect()
+            image = QImage(area.size(), QImage.Format.Format_ARGB32_Premultiplied)
+            painter = QPainter(image)
+            visible_area = QRectF(image.rect())
+            self.render(painter, visible_area, area)
+            painter.end()
+            array = qimage2ndarray.rgb_view(image)
+            return array
+
+        def draw_polygon(self, boolean_mask: np.ndarray[np.ndarray[bool]]):
+
+            contours, _ = cv2.findContours(boolean_mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+            if contours:
+                largest_contour = max(contours, key=cv2.contourArea)
+                polygon = QPolygonF()
+
+                for point in largest_contour:
+                    x, y = point[0]
+                    polygon.append(QPointF(x, y))
+
+                polygon_item = PolygonItemNode(polygon)
+                brush = QBrush(QColor(30, 144, 255, 75))
+
+                polygon_item.setBrush(brush)
+                polygon_item.setPen(QPen(QColor(0, 0, 0, 0)))
+                polygon_item.setZValue(100)
+                self.scene().addItem(polygon_item)
+                return polygon_item
