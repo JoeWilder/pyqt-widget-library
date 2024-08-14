@@ -17,5 +17,5 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["pyqt_widget_library"]
+packages = ["pyqt_widget_library","pyqt_widget_library.events", "pyqt_widget_library.utils"]
 include-package-data = true
