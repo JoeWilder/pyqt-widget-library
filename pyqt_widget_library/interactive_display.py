@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QFileDialog, QGridLayout, QMessageBox, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QFrame
+from PyQt6.QtWidgets import QFileDialog, QGridLayout, QMessageBox, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QFrame, QGraphicsPolygonItem
 from PyQt6.QtGui import QPixmap, QColor, QBrush, QCursor, QImage, QPainter, QPolygonF, QPen
 from PyQt6.QtCore import Qt, QPoint, pyqtSignal, QStandardPaths, QRectF, QPointF
 from .base_display import BaseDisplay
@@ -29,6 +29,14 @@ class InteractiveDisplay(BaseDisplay):
 
     def handle_coords(self, point):
         self.coordinates_changed_event.emit(point)
+
+    def load_image(self, path):
+        pixmap = QPixmap(path)
+        if not pixmap.isNull():
+            self.viewer.set_photo(pixmap)
+            self._path = path
+        else:
+            QMessageBox.warning(self, "Error", f"<br>Could not load image file:<br>" f"<br><b>{path}</b><br>")
 
     def handle_open(self):
         if (start := self._path) is None:
@@ -195,6 +203,8 @@ class InteractiveDisplay(BaseDisplay):
             return array
 
         def draw_polygon(self, boolean_mask: np.ndarray[np.ndarray[bool]]):
+            if not np.any(boolean_mask):
+                return None
 
             contours, _ = cv2.findContours(boolean_mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
             if contours:
@@ -213,3 +223,10 @@ class InteractiveDisplay(BaseDisplay):
                 polygon_item.setZValue(100)
                 self.scene().addItem(polygon_item)
                 return polygon_item
+
+        def get_polygons(self):
+            polygon_items = []
+            for item in self.scene().items():
+                if isinstance(item, QGraphicsPolygonItem):
+                    polygon_items.append(item)
+            return polygon_items
